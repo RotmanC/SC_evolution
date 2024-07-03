@@ -224,7 +224,7 @@ BCtop = 'top'
   []
   [fs]
     type = PorousFlowWaterVapor
-    water_fp = water97
+    water_fp = water_tab #water97
     # moose say 'temperature_from_ph() not implemented for region 5'
     #if I use tabulated values calculated with Coolprop, water_tab (line 228), moose says that 'triplePointPressure()' const not implemented-
     capillary_pressure = pc
