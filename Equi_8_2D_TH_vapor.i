@@ -1,6 +1,7 @@
 # changing vapor fixed
 dbg_actions = false
 dbg_residual_norms = true
+first_ICs = true
 
 BCintrusion = 'bottom'
 BCtop = 'top'
@@ -25,6 +26,35 @@ BCtop = 'top'
   show_actions=${dbg_actions}
 []
 
+[Functions]
+  [pres_hydrostatic]
+    type = ParsedFunction
+    expression = '101325 - 1005.88*9.81*(y)'
+  []
+[]
+
+[ICs]
+  [pliquid]
+    type = FunctionIC
+    function = pres_hydrostatic
+    variable = pliquid
+    ignore_uo_dependency = ${first_ICs}
+  []
+  [h]
+    # type = FunctionIC
+    # function = 'energy_func'
+    # variable = 'h'
+    type = PorousFlowFluidPropertyIC
+    variable = h
+    property = enthalpy
+    porepressure = pliquid
+    temperature = 300
+    temperature_unit = Kelvin
+    fp = water97
+    ignore_uo_dependency = ${first_ICs}
+  []
+[]
+
 [BCs]
   [top_pressure]
     type = DirichletBC
@@ -46,7 +76,7 @@ BCtop = 'top'
     # type = FunctionDirichletBC
     # function = 'intrusion_func'
     variable = h #temperature #
-    value = 1e6 #2.888794e6
+    value = 3e6 #2.888794e6
     boundary =  ${BCintrusion}
   []
 []
@@ -203,10 +233,11 @@ BCtop = 'top'
 
 [Variables]
   [pliquid]
-    initial_condition = 2.2e7 # 1e6
+    # initial_condition = 2.2e7 # 1e6
   []
   [h]
-    initial_condition = 4e6 #440e3
+    # initial_condition = 2e6 #440e3
+    scaling = 1e-8
   []
 []
 
@@ -393,6 +424,16 @@ BCtop = 'top'
   exodus = true
   # file_base = water_vapor_twophase_tab
   # csv = true
+[]
+
+[Controls]
+  [./intrusion_on]
+      type = TimePeriod
+      enable_objects = 'BCs::bottom_temperature_func'
+      start_time = '0.0'
+      end_time = '9.467279e+11' #test 30ky active
+      execute_on ='INITIAL TIMESTEP_END'
+  [../]
 []
 
 # ###If you uncomment this it will print out all the kernels and materials that the PorousFlowFullySaturated action generates
